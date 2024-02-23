@@ -25,9 +25,9 @@ import org.springframework.data.jdbc.core.convert.JdbcConverter;
 import org.springframework.data.jdbc.core.convert.JdbcCustomConversions;
 import org.springframework.data.jdbc.core.convert.RelationResolver;
 import org.springframework.data.jdbc.core.mapping.JdbcMappingContext;
+import org.springframework.data.jdbc.repository.config.DialectResolver;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.data.relational.core.dialect.Dialect;
-import org.springframework.data.relational.core.dialect.SqlServerDialect;
 import org.springframework.data.relational.core.mapping.NamingStrategy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -53,11 +53,16 @@ public class DbConfiguration {
 	JdbcCustomConversions customConversions() {
 		return new JdbcCustomConversions();
 	}
+	
+	
 
 	@Bean
-	Dialect jdbcDialect() {
-		return SqlServerDialect.INSTANCE;
+	public Dialect jdbcDialect(NamedParameterJdbcOperations operations) {
+		return DialectResolver.getDialect(operations.getJdbcOperations());
 	}
+	
+	
+	
 
 	@Bean
 	JdbcMappingContext jdbcMappingContext(Optional<NamingStrategy> namingStrategy,
