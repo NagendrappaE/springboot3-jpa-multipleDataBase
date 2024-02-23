@@ -48,21 +48,31 @@ public class DbConfiguration {
 //https://dba-presents.com/jvm/java/242-spring-data-jdbc-with-two-datasources
 	@Autowired
 	private Environment env;
+	
+	//primary DS Starts
+
+	@Bean("dataSource")
+	@Primary
+	@ConfigurationProperties(prefix = "spring.datasource")
+	public HikariDataSource primarydataSource() {
+		return DataSourceBuilder.create().type(HikariDataSource.class).build();
+	}
+
+	@Bean("jdbcTemplate")
+	@Primary
+	public JdbcTemplate dataSource(DataSource dataSource) {
+		return new JdbcTemplate(primarydataSource());
+	}
 
 	@Bean
 	JdbcCustomConversions customConversions() {
 		return new JdbcCustomConversions();
 	}
-	
-	
 
 	@Bean
 	public Dialect jdbcDialect(NamedParameterJdbcOperations operations) {
 		return DialectResolver.getDialect(operations.getJdbcOperations());
 	}
-	
-	
-	
 
 	@Bean
 	JdbcMappingContext jdbcMappingContext(Optional<NamingStrategy> namingStrategy,
@@ -94,19 +104,9 @@ public class DbConfiguration {
 	NamedParameterJdbcOperations dataSourceJdbcOperations(@Qualifier("dataSource") DataSource dataSource) {
 		return new NamedParameterJdbcTemplate(dataSource);
 	}
-
-	@Bean("dataSource")
-	@Primary
-	@ConfigurationProperties(prefix = "spring.datasource")
-	public HikariDataSource primarydataSource() {
-		return DataSourceBuilder.create().type(HikariDataSource.class).build();
-	}
-
-	@Bean("jdbcTemplate")
-	@Primary
-	public JdbcTemplate dataSource(DataSource dataSource) {
-		return new JdbcTemplate(primarydataSource());
-	}
+	
+	//primary DS ends
+	
 
 	@Bean(name = "secondaryDb")
 	@ConfigurationProperties(prefix = "spring.secondary")
